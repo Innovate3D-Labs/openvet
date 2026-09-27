@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openvet-0.1.schema.json",
+  "title": "OpenVET 0.1 envelope",
+  "description": "Mechanical shape check for draft 0.1. The prose spec is normative. See schemas/README.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "id", "type", "ts", "from", "to", "body"],
+  "properties": {
+    "v": { "const": "0.1" },
+    "id": { "$ref": "#/$defs/messageId" },
+    "type": { "$ref": "#/$defs/messageType" },
+    "ts": { "$ref": "#/$defs/timestamp" },
+    "from": { "$ref": "#/$defs/partyId" },
+    "to": { "$ref": "#/$defs/partyId" },
+    "corr": { "$ref": "#/$defs/messageId" },
+    "body": { "type": "object" },
+    "ext": {
+      "type": "object",
+      "maxProperties": 8,
+      "propertyNames": {
+        "maxLength": 64,
+        "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$",
+      "minLength": 20,
+      "maxLength": 20
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]{0,62}$"
+    },
+    "messageId": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+    },
+    "partyId": {
+      "type": "string",
+      "pattern": "^(csms|agg|grid|hub):[a-z][a-z0-9_-]{0,62}$"
+    },
+    "label": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,63}$"
+    },
+    "interval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": { "$ref": "#/$defs/timestamp" },
+        "end": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "wattBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer", "minimum": -10000000000, "maximum": 10000000000 },
+        "max": { "type": "integer", "minimum": -10000000000, "maximum": 10000000000 }
+      }
+    },
+    "energyBounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer", "minimum": 0, "maximum": 1000000000000 },
+        "max": { "type": "integer", "minimum": 0, "maximum": 1000000000000 }
+      }
+    },
+    "price": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currency", "per", "scale", "amount"],
+      "properties": {
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "per": { "const": "kWh" },
+        "scale": { "type": "integer", "minimum": -9, "maximum": 0 },
+        "amount": { "type": "integer" }
+      }
+    },
+    "messageType": {
+      "enum": [
+        "signal.price",
+        "signal.constraint",
+        "status.pool",
+        "offer.flexibility",
+        "offer.accept",
+        "offer.reject",
+        "offer.counter",
+        "contract.activate",
+        "contract.cancel",
+        "contract.complete",
+        "dispatch.setpoint",
+        "dispatch.ack",
+        "meter.interval",
+        "settlement.claim",
+        "settlement.dispute",
+        "error"
+      ]
+    },
+    "signalPrice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signal_id", "valid", "currency", "per", "scale", "points"],
+      "properties": {
+        "signal_id": { "$ref": "#/$defs/name" },
+        "valid": { "$ref": "#/$defs/interval" },
+        "currency": { "type": "string", "pattern": "^[A-Z]{3}$" },
+        "per": { "const": "kWh" },
+        "scale": { "type": "integer", "minimum": -9, "maximum": 0 },
+        "points": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2048,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "end", "import_amount", "export_amount"],
+            "properties": {
+              "start": { "$ref": "#/$defs/timestamp" },
+              "end": { "$ref": "#/$defs/timestamp" },
+              "import_amount": { "type": "integer" },
+              "export_amount": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+    "signalConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["constraint_id", "pool_id", "valid", "power_w", "reason", "mandatory"],
+      "properties": {
+        "constraint_id": { "$ref": "#/$defs/name" },
+        "pool_id": { "$ref": "#/$defs/name" },
+        "valid": { "$ref": "#/$defs/interval" },
+        "power_w": { "$ref": "#/$defs/wattBounds" },
+        "reason": { "$ref": "#/$defs/label" },
+        "mandatory": { "type": "boolean" },
+        "detail": { "type": "string", "minLength": 1, "maxLength": 256 }
+      }
+    },
+    "statusPool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pool_id",
+        "observed_at",
+        "vehicles_connected",
+        "power_w",
+        "energy_capacity_wh",
+        "energy_stored_wh",
+        "import_available_w",
+        "export_available_w"
+      ],
+      "properties": {
+        "pool_id": { "$ref": "#/$defs/name" },
+        "observed_at": { "$ref": "#/$defs/timestamp" },
+        "vehicles_connected": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "power_w": { "type": "integer", "minimum": -10000000000, "maximum": 10000000000 },
+        "energy_capacity_wh": { "type": "integer", "minimum": 0, "maximum": 1000000000000 },
+        "energy_stored_wh": { "type": "integer", "minimum": 0, "maximum": 1000000000000 },
+        "import_available_w": { "type": "integer", "minimum": 0, "maximum": 10000000000 },
+        "export_available_w": { "type": "integer", "minimum": 0, "maximum": 10000000000 }
+      }
+    },
+    "offerTerms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product",
+        "pool_id",
+        "window",
+        "power_w",
+        "energy_wh",
+        "price",
+        "baseline",
+        "executor",
+        "expires_at"
+      ],
+      "properties": {
+        "product": { "enum": ["charge_shift", "export_cap", "absorb_cap", "reserve"] },
+        "pool_id": { "$ref": "#/$defs/name" },
+        "window": { "$ref": "#/$defs/interval" },
+        "power_w": { "$ref": "#/$defs/wattBounds" },
+        "energy_wh": { "$ref": "#/$defs/energyBounds" },
+        "price": { "$ref": "#/$defs/price" },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind"],
+          "properties": {
+            "kind": { "enum": ["unmanaged_charge", "zero", "external_ref"] },
+            "ref_id": { "$ref": "#/$defs/name" }
+          }
+        },
+        "executor": { "$ref": "#/$defs/partyId" },
+        "expires_at": { "$ref": "#/$defs/timestamp" }
+      }
+    },
+    "offer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["offer_id", "revision", "terms"],
+      "properties": {
+        "offer_id": { "$ref": "#/$defs/name" },
+        "revision": { "type": "integer", "minimum": 1 },
+        "terms": { "$ref": "#/$defs/offerTerms" }
+      }
+    }
+  }
+}

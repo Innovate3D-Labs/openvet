@@ -1,0 +1,21 @@
+{
+  "v": "0.1",
+  "id": "m-meter",
+  "type": "meter.interval",
+  "ts": "2026-09-26T18:15:05Z",
+  "from": "csms:example-municipal",
+  "to": "agg:example-flex",
+  "body": {
+    "contract_id": "ctr-1001",
+    "offer_id": "off-1001",
+    "pool_id": "depot-7",
+    "interval": {
+      "start": "2026-09-26T18:00:00Z",
+      "end": "2026-09-26T18:15:00Z"
+    },
+    "energy_in_wh": 0,
+    "energy_out_wh": 5000,
+    "quality": "operational",
+    "source": "csms_aggregate"
+  }
+}

@@ -1,0 +1,23 @@
+[package]
+name = "openvet"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+description = "Embeddable library for the OpenVET 0.1 draft"
+readme = "README.md"
+
+[features]
+default = ["transport"]
+transport = ["dep:tokio", "dep:tokio-tungstenite", "dep:futures-util"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"], optional = true }
+tokio-tungstenite = { version = "0.26", optional = true }
+futures-util = { version = "0.3", optional = true }
+
+[lib]
+name = "openvet"
+path = "src/lib.rs"

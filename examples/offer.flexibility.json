@@ -1,0 +1,26 @@
+{
+  "v": "0.1",
+  "id": "m-offer",
+  "type": "offer.flexibility",
+  "ts": "2026-09-26T16:00:02Z",
+  "from": "csms:example-municipal",
+  "to": "agg:example-flex",
+  "body": {
+    "offer_id": "off-1001",
+    "revision": 1,
+    "terms": {
+      "product": "charge_shift",
+      "pool_id": "depot-7",
+      "window": {
+        "start": "2026-09-26T18:00:00Z",
+        "end": "2026-09-26T20:00:00Z"
+      },
+      "power_w": { "min": -50000, "max": 150000 },
+      "energy_wh": { "min": 0, "max": 400000 },
+      "price": { "currency": "EUR", "per": "kWh", "scale": -4, "amount": 1500 },
+      "baseline": { "kind": "unmanaged_charge" },
+      "executor": "csms:example-municipal",
+      "expires_at": "2026-09-26T17:30:00Z"
+    }
+  }
+}

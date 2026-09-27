@@ -1,0 +1,16 @@
+{
+  "v": "0.1",
+  "id": "m-ack-clamped",
+  "type": "dispatch.ack",
+  "ts": "2026-09-26T18:00:05Z",
+  "from": "csms:example-municipal",
+  "to": "agg:example-flex",
+  "corr": "m-setpoint",
+  "body": {
+    "contract_id": "ctr-1001",
+    "requested_w": -20000,
+    "applied_w": -10000,
+    "kind": "clamped",
+    "limited_by": "lim-feeder-9"
+  }
+}
